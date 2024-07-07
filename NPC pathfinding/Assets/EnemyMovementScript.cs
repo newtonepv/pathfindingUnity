@@ -2,24 +2,45 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class EnemyMovementScript : MonoBehaviour
+public class EnemyMovement : MonoBehaviour
 {
     public float jumpForce = 5f; // Adjust this value to control the jump force
-    private BoxCollider2D boxCollider;
-    public LayerMask floor;
+
     private Rigidbody2D rb;
-    void Awake(){
-        rb = GetComponent<Rigidbody2D>();
-        boxCollider = GetComponent<BoxCollider2D>();
-    }
-    void Start()
+    private bool isGrounded = false;
+
+    void Awake()
     {
-        floor = LayerMask.GetMask("floor");
+        rb = GetComponent<Rigidbody2D>();
     }
-    void Update(){
-        if (boxCollider.IsTouchingLayers(floor))
+
+    void Update()
+    {
+        if (isGrounded)
         {
-            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+            Jump();
+        }
+    }
+
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("floor"))
+        {
+            isGrounded = true;
+        }
+    }
+
+    private void Jump()
+    {
+        rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
+        isGrounded = false;
+    }
+
+    void OnCollisionExit2D(Collision2D collision)
+    {
+        if (collision.gameObject.layer == LayerMask.NameToLayer("floor"))
+        {
+            isGrounded = false;
         }
     }
 }
